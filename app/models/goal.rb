@@ -1,7 +1,7 @@
 class Goal < ApplicationRecord
   validates :title,
             presence: true,
-            length: { maximum: 80 }
+            length: { maximum: 80 }, if: :title_not_goal
 
   validates :description,
             presence: true,
@@ -16,8 +16,15 @@ class Goal < ApplicationRecord
 
   scope :completed, -> { where(complete: true) }
   scope :incomplete, -> { where(complete: false) }
-  
+  scope :today, -> { where(due_date: Time.zone.today ) }
+
   private
+
+  def title_not_goal
+    if title == "Goal"
+      errors.add(:title, 'cannot be this name')
+    end
+  end
 
   def due_date_cannot_be_in_the_past
     if due_date.present? && due_date < Time.zone.today
